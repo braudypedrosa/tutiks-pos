@@ -1,0 +1,60 @@
+/* Minimal custom styles to complement Bootstrap */
+.pos-dashboard {
+    min-height: calc(100vh - 60px);
+    background-color: #f8f9fa;
+}
+
+/* Product card hover effect */
+.product-item {
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Product image container */
+.product-image {
+    height: 200px;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Cart section */
+.pos-cart {
+    height: calc(100vh - 80px);
+    position: sticky;
+    top: 20px;
+}
+
+.cart-items {
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for cart items */
+.cart-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.cart-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+/* Ensure quantity buttons are properly sized */
+.quantity-controls .btn {
+    width: 32px;
+    padding: 0.25rem;
+}

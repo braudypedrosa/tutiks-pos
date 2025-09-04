@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">
+  <style>
+    .logo-text { fill: #4A2512; }
+    .pan { fill: #4A2512; }
+    .flame { fill: #FF9F1C; }
+    .flame-inner { fill: #FFE0A3; }
+  </style>
+  <g transform="translate(50, 50)">
+    <!-- Pan -->
+    <path class="pan" d="M20,100 Q0,100 0,80 L0,60 Q0,40 20,40 L140,40 Q160,40 160,60 L160,80 Q160,100 140,100 Z"/>
+    <path class="pan" d="M140,45 L180,20 Q190,15 195,25 L200,35 Q205,45 195,50 L155,75 Z"/>
+    
+    <!-- Flame -->
+    <path class="flame" d="M60,35 Q80,-10 100,35 Q120,80 80,80 Q40,80 60,35 Z"/>
+    <path class="flame-inner" d="M70,40 Q80,10 90,40 Q100,70 80,70 Q60,70 70,40 Z"/>
+    
+    <!-- Heart shape in flame -->
+    <path class="pan" d="M75,45 Q80,35 85,45 Q90,35 95,45 Q100,55 85,65 Q70,55 75,45 Z"/>
+  </g>
+  
+  <!-- Text -->
+  <text class="logo-text" x="150" y="220" text-anchor="middle" font-family="serif" font-size="36" font-weight="bold">Tutik's</text>
+  <text class="logo-text" x="150" y="260" text-anchor="middle" font-family="serif" font-size="24">Food and catering</text>
+</svg>
