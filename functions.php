@@ -70,6 +70,7 @@ function tutiks_pos_scripts() {
     wp_enqueue_style('tutiks-pos-style', get_stylesheet_uri(), array('bootstrap'), wp_get_theme()->get('Version'));
     wp_enqueue_style('tutiks-pos-pos', get_template_directory_uri() . '/assets/css/pos.css', array('bootstrap'), wp_get_theme()->get('Version'));
     wp_enqueue_style('tutiks-pos-admin', get_template_directory_uri() . '/assets/css/admin.css', array(), wp_get_theme()->get('Version'));
+    wp_enqueue_style('tutiks-pos-report', get_template_directory_uri() . '/assets/css/report.css', array(), wp_get_theme()->get('Version'));
 
     // Third-party JavaScript
     wp_enqueue_script('jquery');
@@ -80,18 +81,45 @@ function tutiks_pos_scripts() {
     // Theme JavaScript
     wp_enqueue_script('tutiks-pos-script', get_template_directory_uri() . '/assets/js/main.js', array('jquery', 'bootstrap-bundle', 'sweetalert2'), wp_get_theme()->get('Version'), true);
     
-    // Only load POS script on POS page or when needed
-    if (is_page('pos') || (isset($_GET['page']) && $_GET['page'] === 'pos')) {
-        wp_enqueue_script('tutiks-pos-pos', get_template_directory_uri() . '/assets/js/pos.js', array('jquery', 'bootstrap-bundle', 'sweetalert2', 'tutiks-pos-script'), wp_get_theme()->get('Version'), true);
-        
-        // Localize POS script
-        wp_localize_script('tutiks-pos-pos', 'tutiksPOS', array(
-            'ajaxurl' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('tutiks_pos_nonce'),
-            'qrCodeUrl' => get_option('tutiks_pos_qr_code_url', ''),
-            'debug' => WP_DEBUG
-        ));
-    }
+    // Enqueue POS script and localize it (always load, not just on POS page)
+    wp_enqueue_script(
+        'tutiks-pos-pos',
+        get_template_directory_uri() . '/assets/js/pos.js',
+        array('jquery', 'bootstrap-bundle', 'sweetalert2', 'tutiks-pos-script'),
+        wp_get_theme()->get('Version'),
+        true
+    );
+
+    wp_localize_script('tutiks-pos-pos', 'tutiksPOS', array(
+        'ajaxurl'    => admin_url('admin-ajax.php'),
+        'nonce'      => wp_create_nonce('tutiks_pos_nonce'),
+        'qrCodeUrl'  => get_option('tutiks_pos_qr_code_url', ''),
+        'debug'      => WP_DEBUG
+    ));
+
+    // DataTables core + Bootstrap 5 integration (free CDN)
+    wp_enqueue_style('datatables-bs5', 'https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css', array('bootstrap'), '1.13.8');
+    wp_enqueue_script('datatables-core', 'https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js', array('jquery'), '1.13.8', true);
+    wp_enqueue_script('datatables-bs5', 'https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js', array('datatables-core', 'bootstrap-bundle'), '1.13.8', true);
+
+    // DateTime extension for DataTables
+    wp_enqueue_style('datatables-datetime', 'https://cdn.datatables.net/datetime/1.5.0/css/dataTables.dateTime.min.css', array(), '1.5.0');
+    wp_enqueue_script('datatables-datetime', 'https://cdn.datatables.net/datetime/1.5.0/js/dataTables.dateTime.min.js', array('datatables-core'), '1.5.0', true);
+
+    // DataTables Buttons (CSV export only) with Bootstrap 5 styling
+    wp_enqueue_style('datatables-buttons-bs5', 'https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css', array('datatables-bs5'), '2.4.2');
+    wp_enqueue_script('datatables-buttons', 'https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js', array('datatables-core'), '2.4.2', true);
+    wp_enqueue_script('datatables-buttons-bs5', 'https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js', array('datatables-buttons','bootstrap-bundle'), '2.4.2', true);
+    wp_enqueue_script('datatables-buttons-html5', 'https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js', array('datatables-buttons'), '2.4.2', true);
+
+    // Reports init (ensure dependencies are loaded first)
+    wp_enqueue_script(
+        'tutiks-pos-reports',
+        get_template_directory_uri() . '/assets/js/reports.js',
+        array('jquery', 'datatables-core', 'datatables-bs5', 'datatables-datetime', 'datatables-buttons', 'datatables-buttons-bs5', 'datatables-buttons-html5'),
+        wp_get_theme()->get('Version'),
+        true
+    );
     
 
     // No need for additional localization here as it's handled in the conditional blocks above

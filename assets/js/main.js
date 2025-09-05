@@ -49,4 +49,42 @@ jQuery(document).ready(function($) {
             }
         }, 250);
     });
+
+    // Toggle form visibility
+    $('#toggleForm').on('click', function() {
+        $('#productForm').slideToggle();
+        resetForm();
+    });
+
+    // Cancel edit
+    $('#cancelEdit').on('click', function() {
+        $('#productForm').slideUp();
+        resetForm();
+    });
+
+    // Edit product
+    $('.edit-product').on('click', function() {
+        const $btn = $(this);
+        const productId = $btn.data('id');
+        const productTitle = $btn.data('title');
+        const productPrice = $btn.data('price');
+        const productCategory = $btn.data('category');
+
+        $('#product_id').val(productId);
+        $('#product_title').val(productTitle);
+        $('#product_price').val(productPrice);
+        $('#product_category').val(productCategory);
+
+        $('#productForm').slideDown();
+        $('html, body').animate({
+            scrollTop: $('#productForm').offset().top - 100
+        }, 500);
+    });
+
+    function resetForm() {
+        $('#product_id').val('');
+        $('#product_title').val('');
+        $('#product_price').val('');
+        $('#product_category').val('');
+    }
 });
