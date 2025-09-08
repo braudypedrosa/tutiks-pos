@@ -45,7 +45,7 @@
             <div class="card">
                 <div class="card-body">
                     <h3 id="reports_total_label" class="card-title">Today's Total</h3>
-                    <div id="reports_total_value" class="amount">₱<?php echo number_format($today_total_sales, 2); ?></div>
+                    <div id="reports_total_value" class="amount" data-today-total="<?php echo esc_attr(number_format($today_total_sales, 2, '.', '')); ?>">₱<?php echo number_format($today_total_sales, 2); ?></div>
                 </div>
             </div>
         </div>
@@ -53,7 +53,7 @@
             <div class="card">
                 <div class="card-body">
                     <h3 id="reports_orders_label" class="card-title">Today's Orders</h3>
-                    <div id="reports_orders_value" class="amount"><?php echo intval($today_total_orders); ?></div>
+                    <div id="reports_orders_value" class="amount" data-today-orders="<?php echo esc_attr(intval($today_total_orders)); ?>"><?php echo intval($today_total_orders); ?></div>
                 </div>
             </div>
         </div>

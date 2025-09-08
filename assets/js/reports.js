@@ -2,7 +2,6 @@ jQuery(function($) {
     let minDate, maxDate; // DateTime pickers
 
     function updateSummary(table) {
-        console.log('summary update');
         let total = 0;
         let count = 0;
         // Only count filtered rows currently in the table
@@ -18,8 +17,25 @@ jQuery(function($) {
         const hasMax = !!maxDate?.val();
         const isFiltered = hasMin || hasMax;
 
-        $('#reports_total_label').text(isFiltered ? 'Total Sale' : "Today's Total");
-        $('#reports_orders_label').text(isFiltered ? 'Total Orders' : "Today's Orders");
+        if (!isFiltered) {
+            // Keep today's summary from server-rendered data attributes
+            const $totalEl = $('#reports_total_value');
+            const $ordersEl = $('#reports_orders_value');
+            const todayTotal = $totalEl.data('today-total');
+            const todayOrders = $ordersEl.data('today-orders');
+            $('#reports_total_label').text("Today's Total");
+            $('#reports_orders_label').text("Today's Orders");
+            if (todayTotal !== undefined) {
+                $totalEl.text('₱' + (Number(todayTotal).toFixed(2)));
+            }
+            if (todayOrders !== undefined) {
+                $ordersEl.text(Number(todayOrders));
+            }
+            return;
+        }
+
+        $('#reports_total_label').text('Total Sale');
+        $('#reports_orders_label').text('Total Orders');
         $('#reports_total_value').text('₱' + (total.toFixed(2)));
         $('#reports_orders_value').text(count);
     }
@@ -40,13 +56,11 @@ jQuery(function($) {
     $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         if (settings.nTable.id !== 'reportsTable') return true;
 
-        const min = minDate ? minDate.val() : null;
-        const max = maxDate ? maxDate.val() : null;
+        const min = minDate ? minDate.val() : null; // Date or null
+        const max = maxDate ? maxDate.val() : null; // Date or null
 
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const todayEnd = new Date(today);
-        todayEnd.setHours(23,59,59,999);
+        // If no min and max selected, do not filter (show all)
+        if (!min && !max) return true;
 
         const $row = $(settings.aoData[dataIndex].nTr);
         const iso = $row.find('.date-display').data('iso');
@@ -55,11 +69,12 @@ jQuery(function($) {
         const rowDate = new Date(iso);
         if (Number.isNaN(rowDate.getTime())) return true;
 
-        const minDateVal = min || today;
-        const maxDateVal = max || todayEnd;
-
-        if (rowDate < minDateVal) return false;
-        if (rowDate > maxDateVal) return false;
+        if (min && rowDate < min) return false;
+        if (max) {
+            const maxEnd = new Date(max);
+            maxEnd.setHours(23,59,59,999);
+            if (rowDate > maxEnd) return false;
+        }
         return true;
     });
 
@@ -98,9 +113,8 @@ jQuery(function($) {
         updateSummary(table);
     });
 
-    // Initial draw and summary (defaults to today when inputs are empty)
+    // Initial draw (no filtering). Cards show today's totals from PHP.
     table.draw();
-    updateSummary(table);
 });
 
 

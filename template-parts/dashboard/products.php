@@ -136,7 +136,7 @@ $products = get_posts(array(
         </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover">
+                <table id="productsTable" class="table table-hover">
                     <thead>
                         <tr>
                             <th>Name</th>
@@ -177,3 +177,20 @@ $products = get_posts(array(
         </div>
     </div>
 </div>
+
+<script>
+jQuery(function($) {
+    $('#productsTable').DataTable({
+        pageLength: 20,
+        lengthMenu: [10, 20, 50, 100],
+        order: [[0, 'asc']],
+        language: { search: 'Search:' },
+        columnDefs: [
+            { targets: -1, orderable: false, searchable: false } // Actions column
+        ],
+        dom: "<'row'<'col-sm-12 col-md-8 d-flex align-items-center gap-2'l f><'col-sm-12 col-md-4 text-md-end'>>" +
+             "<'row'<'col-sm-12'tr>>" +
+             "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+    });
+});
+</script>
