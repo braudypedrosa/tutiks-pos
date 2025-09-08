@@ -99,8 +99,11 @@
                                 // Normalize to ISO-8601 with "T" for cross-browser parsing
                                 $iso_ts   = strtotime($iso_date_raw);
                                 $iso_attr = $iso_ts ? date('c', $iso_ts) : '';
+                                $order_items = get_post_meta($order_post->ID, '_order_items', true);
+                                $items_json = $order_items ? wp_json_encode($order_items) : '[]';
+                                $items_b64  = base64_encode($items_json);
                             ?>
-                                <tr>
+                                <tr class="order-row" data-order-id="<?php echo esc_attr($order_post->ID); ?>" data-items="<?php echo esc_attr($items_b64); ?>" data-total="<?php echo esc_attr(number_format((float) $order_total, 2, '.', '')); ?>" data-payment="<?php echo esc_attr($payment_method); ?>">
                                     <td>#<?php echo esc_html($order_post->ID); ?></td>
                                     <td>
                                         <span class="date-display" data-iso="<?php echo esc_attr($iso_attr); ?>">
@@ -111,10 +114,6 @@
                                     <td><?php echo $payment_method === 'qr' ? 'QR' : esc_html(ucfirst((string) $payment_method)); ?></td>
                                 </tr>
                             <?php endforeach; ?>
-                        <?php else : ?>
-                            <tr>
-                                <td colspan="4" class="text-center">No orders found.</td>
-                            </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -139,6 +138,47 @@
 }
 .card-header { overflow: visible; }
 .dt-datetime { z-index: 2000; }
+.order-row { cursor: pointer; }
+.order-row.shown { background-color: #f8f9fa; }
 </style>
 
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-labelledby="orderDetailsLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderDetailsLabel">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <div class="small text-muted">Payment</div>
+                        <div id="orderDetailsPayment" class="fw-semibold"></div>
+                    </div>
+                    <div class="text-end">
+                        <div class="small text-muted">Total</div>
+                        <div id="orderDetailsTotal" class="fs-5 fw-bold"></div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th class="text-end">Qty</th>
+                                <th class="text-end">Price</th>
+                                <th class="text-end">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderDetailsBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+    </div>
 

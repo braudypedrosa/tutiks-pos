@@ -78,7 +78,7 @@ $products = get_posts(array(
     <!-- Add/Edit Product Form -->
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h3 class="card-title mb-0">Add New Product</h3>
+            <h3 id="productFormTitle" class="card-title mb-0">Add New Product</h3>
             <button type="button" class="btn btn-outline-primary btn-sm" id="toggleForm">
                 <i class="fas fa-plus"></i>
             </button>
@@ -191,6 +191,66 @@ jQuery(function($) {
         dom: "<'row'<'col-sm-12 col-md-8 d-flex align-items-center gap-2'l f><'col-sm-12 col-md-4 text-md-end'>>" +
              "<'row'<'col-sm-12'tr>>" +
              "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>"
+    });
+
+    // Form toggle and edit mode logic
+    const $formCardBody = $('#productForm');
+    const $title = $('#productFormTitle');
+    const $toggle = $('#toggleForm');
+    const $inputId = $('#product_id');
+    const $inputTitle = $('#product_title');
+    const $inputPrice = $('#product_price');
+    const $inputCategory = $('#product_category');
+    const defaultTitle = 'Add New Product';
+
+    function openForm() {
+        if (!$formCardBody.is(':visible')) {
+            $formCardBody.slideDown(150);
+        }
+    }
+
+    function resetFormToAddMode() {
+        $inputId.val('');
+        $inputTitle.val('');
+        $inputPrice.val('');
+        $inputCategory.val('');
+        $title.text(defaultTitle);
+    }
+
+    function setEditMode(data) {
+        $title.text('Edit Product');
+        $inputId.val(data.id || '');
+        $inputTitle.val(data.title || '');
+        $inputPrice.val(data.price || '');
+        if (data.category) { $inputCategory.val(data.category); }
+        openForm();
+    }
+
+    // Toggle button shows/hides form. Hiding resets to add mode.
+    $toggle.on('click', function() {
+        if ($formCardBody.is(':visible')) {
+            $formCardBody.slideUp(150, resetFormToAddMode);
+        } else {
+            resetFormToAddMode();
+            openForm();
+        }
+    });
+
+    // Edit buttons populate the form and switch title to Edit Product
+    $(document).on('click', '.edit-product', function() {
+        const $btn = $(this);
+        setEditMode({
+            id: $btn.data('id'),
+            title: $btn.data('title'),
+            price: $btn.data('price'),
+            category: $btn.data('category')
+        });
+    });
+
+    // Cancel returns to Add New Product and hides the form
+    $('#cancelEdit').on('click', function() {
+        resetFormToAddMode();
+        $formCardBody.slideUp(150);
     });
 });
 </script>

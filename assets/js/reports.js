@@ -82,7 +82,10 @@ jQuery(function($) {
         pageLength: 20,
         lengthMenu: [10, 20, 50, 100],
         order: [[1, 'desc']], // sort by date column desc
-        language: { search: 'Search:' },
+        language: {
+            search: 'Search:',
+            emptyTable: 'No orders found.'
+        },
         // Use Bootstrap 5 classes
         dom: "<'row'<'col-sm-12 col-md-8 d-flex align-items-center gap-2'l f><'col-sm-12 col-md-4 text-md-end'B>>" +
              "<'row'<'col-sm-12'tr>>" +
@@ -98,6 +101,66 @@ jQuery(function($) {
                 }
             }
         ]
+    });
+
+    // Open Bootstrap modal on row click
+    function renderModal(items, total, payment) {
+        const tbody = $('#orderDetailsBody');
+        tbody.empty();
+        if (!Array.isArray(items) || items.length === 0) {
+            tbody.append('<tr><td colspan="4" class="text-center">No items</td></tr>');
+        } else {
+            items.forEach(function(item) {
+                const qty = Number(item.quantity || 0);
+                const price = Number(item.price || 0);
+                const subtotal = (qty * price).toFixed(2);
+                tbody.append(
+                    '<tr>' +
+                    '<td>' + (item.name || '') + '</td>' +
+                    '<td class="text-end">' + qty + '</td>' +
+                    '<td class="text-end">₱' + price.toFixed(2) + '</td>' +
+                    '<td class="text-end fw-semibold">₱' + subtotal + '</td>' +
+                    '</tr>'
+                );
+            });
+        }
+        $('#orderDetailsPayment').text(payment === 'qr' ? 'QR' : (payment || '').toString().toUpperCase());
+        $('#orderDetailsTotal').text('₱' + Number(total || 0).toFixed(2));
+        const modalEl = document.getElementById('orderDetailsModal');
+        if (!modalEl) return;
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+    }
+
+    function parseItemsFromRow(tr) {
+        const raw = tr.attr('data-items') || '';
+        if (!raw) return [];
+        // Try base64 → JSON (ASCII)
+        try {
+            const jsonAscii = atob(raw);
+            try { return JSON.parse(jsonAscii); } catch (_) {}
+        } catch (_) {}
+        // Try base64 UTF-8 → JSON
+        try {
+            const bytes = Uint8Array.from(atob(raw), c => c.charCodeAt(0));
+            const jsonUtf8 = (window.TextDecoder ? new TextDecoder().decode(bytes) : String.fromCharCode.apply(null, bytes));
+            try { return JSON.parse(jsonUtf8); } catch (_) {}
+        } catch (_) {}
+        // Fallback: raw may already be JSON
+        try { return JSON.parse(raw); } catch (_) { return []; }
+    }
+
+    $('#reportsTable tbody').on('click', 'tr', function() {
+        const tr = $(this);
+        let items = parseItemsFromRow(tr);
+        if (items && !Array.isArray(items)) {
+            // Convert object with numeric keys to array
+            items = Object.values(items);
+        }
+        console.debug('Order details items:', items);
+        const total = tr.attr('data-total');
+        const payment = tr.attr('data-payment');
+        renderModal(items, total, payment);
     });
 
     // Refilter on DateTime change
